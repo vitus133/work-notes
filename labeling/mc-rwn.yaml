@@ -1,0 +1,29 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: mc-rwn-labeling
+spec:
+  config:
+    ignition:
+      version: 3.1.0
+    storage:
+      files:
+      - path: /usr/local/bin/addLabel
+        filesystem: root
+        mode: 493
+        contents:
+          source: data:text/plain;charset=utf8;base64,IyEvYmluL2Jhc2gKCmRlYnVnKCkgewogIGVjaG8gJEAgPiYyCn0KCnVzYWdlKCkgewogIGVjaG8gVXNhZ2U6ICQoYmFzZW5hbWUgJDApIExBQkVMIFVOSVQgW2VudmZpbGUgW3Zhcm5hbWVdXQogIGVjaG8KICBlY2hvIEFkZCBhZGRpdGlvbmFsIGxhYmVscyB0byBrdWJlbGV0IC0tbm9kZS1sYWJlbHMgY29tbWFuZCBsaW5lIG9wdGlvbgogIGVjaG8gRXh0cmFjdHMgdGhlIGNvbnRlbnRzIG9mIHRoZSBmaXJzdCBFeGVjU3RhcnQgc3RhbnphIGZyb20gdGhlIGdpdmVuIHN5c3RlbWQgdW5pdCwKICBlY2hvICAgYXBwZW5kcyB0aGUgTEFCRUwgdG8gdGhlIC0tbm9kZS1sYWJlbHMgYW5kIHJldHVybnMgdGhlIHJlc3VsdGluZyBzdHJpbmcgdG8gU1RET1VUCiAgZWNobyAiSWYgJ2VudmZpbGUnIGlzIHByb3ZpZGVkLCBwdXQgaXQgaW4gdGhlcmUgaW5zdGVhZCwgYXMgYW4gZW52aXJvbm1lbnQgdmFyaWFibGUgbmFtZWQgJ3Zhcm5hbWUnIgogIGVjaG8gIkRlZmF1bHQgJ3Zhcm5hbWUnIGlzIEVYRUNTVEFSVCBpZiBub3Qgc3BlY2lmaWVkIgogIGV4aXQgMQp9CkxBQkVMPSQxClVOSVQ9JDIKRU5WRklMRT0kMwpWQVJOQU1FPSQ0CmlmIFtbIC16ICRVTklUIHx8ICRVTklUID09ICItLWhlbHAiIHx8ICRVTklUID09ICItaCIgXV07IHRoZW4KICB1c2FnZQpmaQpGSUxFPSQoc3lzdGVtY3RsIGNhdCAkVU5JVCB8IGhlYWQgLW4gMSkKRklMRT0ke0ZJTEUjXCMgfQppZiBbWyAhIC1mICRGSUxFIF1dOyB0aGVuCiAgZGVidWcgIkZhaWxlZCB0byBmaW5kIHJvb3QgZmlsZSBmb3IgdW5pdCAkVU5JVCAoJEZJTEUpIgogIGV4aXQKZmkKT1JJR19FWEVDU1RBUlQ9JChzZWQgLW4gLWUgJy9eRXhlY1N0YXJ0PS4qXFwkLywvW15cXF0kLyB7IHMvXkV4ZWNTdGFydD0vLzsgcCB9JyAtZSAnL15FeGVjU3RhcnQ9LipbXlxcXSQvIHsgcy9eRXhlY1N0YXJ0PS8vOyBwIH0nICRGSUxFKQpPUklHX0VYRUNTVEFSVD0kKGVjaG8gJE9SSUdfRVhFQ1NUQVJUIHwgc2VkICdzL1xcIC8vZycpCgpPUklHX0VYRUNTVEFSVD0ke09SSUdfRVhFQ1NUQVJUIyprdWJlbGV0fQpSSUdIVF9TSURFPSR7T1JJR19FWEVDU1RBUlQjIypub2RlLWxhYmVscz19Ck9MRF9MQUJFTFM9JHtSSUdIVF9TSURFJSUgKn0KTkVXX0xBQkVMUz0iJE9MRF9MQUJFTFMsJExBQkVMIgpORVdfRVhFQ1NUQVJUPSIke09SSUdfRVhFQ1NUQVJULyRPTERfTEFCRUxTLyRORVdfTEFCRUxTfSIKaWYgW1sgJEVOVkZJTEUgXV07IHRoZW4KICBWQVJOQU1FPSR7VkFSTkFNRTotRVhFQ1NUQVJUfQogIGVjaG8gIiR7VkFSTkFNRX09JHtORVdfRVhFQ1NUQVJUfSIgPiAkRU5WRklMRQplbHNlCiAgZWNobyAkTkVXX0VYRUNTVEFSVApmaQo=
+    systemd:
+      units:
+      - name: kubelet.service
+        dropins:
+        - name: 20-labeling.conf
+          contents: |
+            [Unit]
+            Wants=kubelet.service
+
+            [Service]
+            ExecStartPre=/usr/local/bin/addLabel node-role.kubernetes.io/worker-du-rwn= %n /%T/%N-execstart.env KUBELET_PARAMS
+            EnvironmentFile=-/%T/%N-execstart.env
+            ExecStart=
+            ExecStart=/usr/bin/hyperkube kubelet "${KUBELET_PARAMS}"
