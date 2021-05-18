@@ -1,0 +1,27 @@
+[Unit]
+Description=Dropin Service Test
+
+[Service]
+ExecStart=/usr/bin/echo \
+       kubelet \
+      --config=/etc/kubernetes/kubelet.conf \
+      --bootstrap-kubeconfig=/etc/kubernetes/kubeconfig \
+      --kubeconfig=/var/lib/kubelet/kubeconfig \
+      --container-runtime=remote \
+      --container-runtime-endpoint=/var/run/crio/crio.sock \
+      --runtime-cgroups=/system.slice/crio.service \
+      --node-labels=node-role.kubernetes.io/master,node.openshift.io/os_id=${ID} \
+      --node-ip=${KUBELET_NODE_IP} \
+      --minimum-container-ttl-duration=6m0s \
+      --cloud-provider= \
+      --volume-plugin-dir=/etc/kubernetes/kubelet-plugins/volume/exec \
+       \
+      --register-with-taints=node-role.kubernetes.io/master=:NoSchedule \
+      --pod-infra-container-image=quay.io/openshift-release-dev/ocp-v4.0-art-dev@sha256:0daa4e178ce33119fa0db46968ed6ba57891ebd9a8e394a725e6159608313e84 \
+      --system-reserved=cpu=${SYSTEM_RESERVED_CPU},memory=${SYSTEM_RESERVED_MEMORY} \
+      --v=${KUBELET_LOG_LEVEL}
+
+
+[Install]
+WantedBy=multi-user.target
+
