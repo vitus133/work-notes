@@ -2,6 +2,8 @@ apiVersion: machineconfiguration.openshift.io/v1
 kind: MachineConfig
 metadata:
   name: mc-rwn-labeling
+  labels:
+    machineconfiguration.openshift.io/role: worker
 spec:
   config:
     ignition:
