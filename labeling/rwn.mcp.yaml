@@ -1,0 +1,19 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfigPool
+metadata:
+  labels:
+    machineconfiguration.openshift.io/role: worker-rwn
+  name: worker-rwn
+spec:
+  machineConfigSelector:
+    matchExpressions:
+      - {
+          key: machineconfiguration.openshift.io/role,
+          operator: In,
+          values: [worker-rwn, worker],
+        }
+  nodeSelector:
+    matchLabels:
+      node.kubernetes.io/role: rwn
+  paused: false
+

@@ -1,0 +1,18 @@
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  name: 30-rwn-kubelet-extra-labels
+  labels:
+          machineconfiguration.openshift.io/role: worker-rwn
+spec:
+  config:
+    ignition:
+      version: 3.2.0
+    systemd:
+      units:
+      - name: kubelet.service
+        dropins:
+        - name: 30-extra-labels.conf
+          contents: |
+            [Service]
+            Environment="FIRST_BOOT_ONLY_KUBELET_NODE_EXTRA_LABELS=node.kubernetes.io/role=rwn"

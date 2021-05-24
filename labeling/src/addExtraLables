@@ -1,0 +1,15 @@
+#!/bin/bash
+
+debug() {
+  echo $@ >&2
+}
+
+usage() {
+  echo Usage: $(basename $0) envfile
+  echo
+  echo Add extra lables to envfile
+  exit 1
+}
+
+ENVFILE=$1
+sed -i 's/--node-labels=/--node-labels=${FIRST_BOOT_ONLY_KUBELET_NODE_EXTRA_LABELS},/' $ENVFILE
