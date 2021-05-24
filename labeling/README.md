@@ -42,13 +42,16 @@ To leverage the drop-in during the first boot, it must be injected to the boot i
 - [mc-extra-labels.yaml](mc-extra-labels.yaml) - contains the[30-extra-labels.conf](src/30-extra-labels.conf) file.
 The translation can be done using this infrastructure:
 https://github.com/yuvalk/ocp-node-labels
-2. Deploy the resulting machine configurations to your cluster and approve all pending csr. Make sure machine config server is served the machine configurations for the machine  role of interest, for example:
->`http://<cluster API IP or domain name>:22624/config/worker-rwn`
+2. Deploy the resulting machine configurations to your cluster and approve all pending csr. Make sure machine config server is served the machine configurations for the machine  role of interest, for example using CURL:
+```console
+curl -L http://<cluster API IP or domain name>:22624/config/worker-rwn
+```
 3. Create the bootable ISO. This is easiest to do with [kcli](https://github.com/karmab/kcli):
 
 ```console
 kcli create openshift-iso -P role=worker-rwn <cluster API IP or domain name>
 ```
+Ther role must match the one served by the machine config server.
 At this point `kcli` will download the RHCOS ISO, get the ignition from the machine config server and create the ISO for your node by embedding the downloaded ignition inside.
 
 ### The production way
