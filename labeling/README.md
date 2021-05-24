@@ -1,7 +1,7 @@
 # Node auto-labelling
 
 ## Why
-When OCP worker node is created, it automatically joins the `worker` machine config pool. If we want it to be in a custom pool, we must label the node. The machine config operator will then detect the change and join the node to the pool, which will lead to reboot.
+When OCP worker node is created, it automatically joins the `worker` machine config pool. If we want it to be in a custom pool, we must label the node. The machine config operator will then detect the change and join the node to the pool, which will lead to a reboot.
 If we want to eliminate this reboot, we should make the node joining the correct machine config pool from the beginning by labeling it accordingly before the first boot.
 
 ## How
@@ -24,7 +24,7 @@ Here we overlay the kubelet.service and add a label using a drop-in. Our drop-in
   - The intention here to add the drop-in to all worker nodes, as an infrastructure, but configure custom label only on the designated custom pool nodes
 - Execute the original ExecStart directive including the additional label
 
-This idea and implementation is inspired by this work:
+This idea and implementation are inspired by this work:
 https://github.com/lack/redhat-notes/tree/main/crio_unshare_mounts 
 
 ### The drop-in source files
@@ -42,7 +42,7 @@ To leverage the drop-in during the first boot, it must be injected to the boot i
 - [mc-extra-labels.yaml](mc-extra-labels.yaml) - contains the[30-extra-labels.conf](src/30-extra-labels.conf) file.
 The translation can be done using this infrastructure:
 https://github.com/yuvalk/ocp-node-labels
-2. Deploy the resulting machine configurations to your cluster and approve all pending csr. Make sure machine config server is served the machine configurations for the machine  role of interest, for example using CURL:
+2. Deploy the resulting machine configurations to your cluster and approve all pending `csr`. Make sure machine config server is serving the machine configurations for the machine  role of interest, for example using CURL. In the example below we check that `worker-rwn` ignition is served by the MCS:
 ```console
 curl -L http://<cluster API IP or domain name>:22624/config/worker-rwn
 ```
