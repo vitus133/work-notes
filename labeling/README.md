@@ -54,6 +54,12 @@ kcli create openshift-iso -P role=worker-rwn <cluster API IP or domain name>
 Ther role must match the one served by the machine config server.
 At this point `kcli` will download the RHCOS ISO, get the ignition from the machine config server and create the ISO for your node by embedding the downloaded ignition inside.
 
+4. Spin a virtual worker. or install a physical one.
+Virtual worker example with kcli:
+```console
+kcli create vm -P iso=cnfdt15.iso -P nets=["baremetal"] -P memory=8192 -P cpus=4 -P disks=[20] cnfdt15-worker4
+```
+
 ### The production way
 Will be explored upon transition to production, and will probably involve integration with https://github.com/openshift/assisted-service
 
