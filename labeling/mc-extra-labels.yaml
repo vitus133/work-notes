@@ -15,4 +15,4 @@ spec:
         - name: 30-extra-labels.conf
           contents: |
             [Service]
-            Environment="FIRST_BOOT_ONLY_KUBELET_NODE_EXTRA_LABELS=node.kubernetes.io/role=rwn"
+            Environment="FIRST_BOOT_ONLY_KUBELET_NODE_EXTRA_LABELS=node.kubernetes.io/worker-rwn="

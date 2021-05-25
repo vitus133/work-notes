@@ -57,3 +57,9 @@ At this point `kcli` will download the RHCOS ISO, get the ignition from the mach
 ### The production way
 Will be explored upon transition to production, and will probably involve integration with https://github.com/openshift/assisted-service
 
+## On the labeling scheme for PAO
+Performance Addon operator is currently relying on the following labeling scheme:
+```
+<something>/<role>: ""
+```
+In this example we are using `node.kubernetes.io/worker-rwn=""`
