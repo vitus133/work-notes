@@ -63,9 +63,13 @@ kcli create vm -P iso=cnfdt15.iso -P nets=["baremetal"] -P memory=8192 -P cpus=4
 ### The production way
 Will be explored upon transition to production, and will probably involve integration with https://github.com/openshift/assisted-service
 
-## On the labeling scheme for PAO
+## On the labeling scheme
+### PAO limitations
 Performance Addon operator is currently relying on the following labeling scheme:
 ```
 <something>/<role>: ""
 ```
 In this example we are using `node.kubernetes.io/worker-rwn=""`
+
+### Kubelet limitations
+Labels specified with --node-labels: [node-role.kubernetes.io/worker-rwn]\n--node-labels in the 'kubernetes.io' namespace must begin with an allowed prefix (kubelet.kubernetes.io, node.kubernetes.io) or be in the specifically allowed set (beta.kubernetes.io/arch, beta.kubernetes.io/instance-type, beta.kubernetes.io/os, failure-domain.beta.kubernetes.io/region, failure-domain.beta.kubernetes.io/zone, kubernetes.io/arch, kubernetes.io/hostname, kubernetes.io/os, node-role.kubernetes.io/etcd, node-role.kubernetes.io/master, node-role.kubernetes.io/worker, node.kubernetes.io/instance-type, topology.kubernetes.io/region, topology.kubernetes.io/zone)"
