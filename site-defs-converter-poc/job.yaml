@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: convert-site-defs
+  generateName: test-
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  template:
+    spec:
+      containers:
+        - name: config-converter
+          #image: registry.redhat.io/ubi8/python-38:latest
+          image: quay.io/vgrinber/site-defs-converter-image:latest
+          command: ["/bin/bash", "-c", "/usr/src/site_defs_convert/entrypoint.sh"]
+          volumeMounts:
+            - name: git-access
+              mountPath: /usr/src/site_defs_convert/secrets
+              readOnly: true
+            - name: site-config
+              mountPath: /usr/src/site_defs_convert/ini
+      volumes:
+      - name: site-config
+        configMap:
+          name: site-config
+          items:
+            - key: site_settings
+              path: ClusterDeployment.ini
+            - key: authorized_keys
+              path: authorized_keys
+      - name: git-access
+        secret:
+          secretName: git-access
+          items:
+          - key: public
+            path: bitbucket.pub
+          - key: private
+            path: target_repo_private_key
+          - key: known_hosts
+            path: known_hosts
+      restartPolicy: Never
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 60
+
