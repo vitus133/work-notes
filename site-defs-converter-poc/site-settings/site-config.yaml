@@ -9,7 +9,7 @@ data:
     # WARNING: keys are not case sensitive
     clusterName=cnfocto1
     agentLabelKey=agent-label
-    agentLabelVal=du-sno
+    agentLabelVal=du-sno1
     pullSecretRef=assisted-deployment-pull-secret
     nmstateLabelKey=nmstate-label
     nmstateLabelVal=cnfocto1-nmstate
