@@ -1,0 +1,11 @@
+---
+# tasks file for Site
+- name: Check we can access CR spec
+  debug:
+    msg: "message value from CR spec: {{ message }}"
+
+- name: Check we can access CR spec
+  debug:
+    msg: "Agent label value from CR spec: {{ agent.label }}"
+
+
