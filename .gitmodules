@@ -1,0 +1,3 @@
+[submodule "polgen-pod/cnf-features-deploy"]
+	path = polgen-pod/cnf-features-deploy
+	url = https://github.com/openshift-kni/cnf-features-deploy.git
