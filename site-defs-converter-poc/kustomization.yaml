@@ -1,4 +1,5 @@
 resources:
 - site-settings/site-config.yaml
+- site-settings/site-config2.yaml
 # - secrets/git-access.yaml
 - job.yaml
