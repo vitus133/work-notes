@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: policy-gen
+spec:
+  containers:
+    - name: polgen
+      # image: registry.fedoraproject.org/f33/python3:latest
+      image: quay.io/vgrinber/polgen:latest
+      command:
+      - /bin/bash
+      - -c
+      - "sleep inf"
+      # volumeMounts:
+      #   - name: git-access
+      #     mountPath: /usr/src/site_defs_convert/secrets
+      #     readOnly: true
+      #   - name: site-config
+      #     mountPath: /usr/src/site_defs_convert/ini
+  # volumes:
+  # - name: site-config
+  #   configMap:
+  #     name: site-config
+  #     items:
+  #       - key: site_settings
+  #         path: ClusterDeployment.ini
+  #       - key: authorized_keys
+  #         path: authorized_keys
+  # - name: git-access
+  #   secret:
+  #     secretName: git-access
+  #     items:
+  #     - key: public
+  #       path: bitbucket.pub
+  #     - key: private
+  #       path: target_repo_private_key
+  #     - key: known_hosts
+  #       path: known_hosts
+  restartPolicy: Never
