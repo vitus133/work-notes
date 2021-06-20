@@ -1,0 +1,13 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: converter
+rules:
+- apiGroups:
+  - ran.openshift.io
+  resources:
+  - sites
+  verbs:
+  - get
+  - watch
+  - list

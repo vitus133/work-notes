@@ -3,6 +3,9 @@ kind: Pod
 metadata:
   name: policy-gen
 spec:
+  #automountServiceAccountToken: true
+  #serviceAccountName: "default"
+  #enableServiceLinks: true
   containers:
     - name: polgen
       # image: registry.fedoraproject.org/f33/python3:latest
