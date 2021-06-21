@@ -23,15 +23,17 @@ def main():
     aApiClient = client.ApiClient(aConfiguration)
     api = client.CustomObjectsApi(aApiClient)
 
+    group="ran.openshift.io"
+    version="v1alpha1"
+    namespace="default"
+    plural="sites"
+    watch = False
 
-    resource = api.get_namespaced_custom_object(
-        group="ran.openshift.io",
-        version="v1alpha1",
-        name="sample-site-2",
-        namespace="default",
-        plural="sites",
-    )
-    pprint(resource)
+    resp = api.list_namespaced_custom_object(
+      group=group, version=version,
+      namespace=namespace, plural=plural, watch=watch, timeout_seconds=10)
+    
+    pprint(resp)
 
 if __name__ == '__main__':
     main()
