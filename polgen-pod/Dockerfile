@@ -12,7 +12,9 @@ RUN pip install --upgrade pip && \
     pip install kubernetes && \
     mkdir /usr/src/policy-gen
 
+USER 1001
 # COPY cnf-features-deploy/ztp/ /usr/src/policy-gen
+
 COPY watcher.py /usr/src/policy-gen
 WORKDIR /usr/src/policy-gen
 
