@@ -10,8 +10,8 @@ USER root
     
 RUN pip install --upgrade pip && \
     pip install kubernetes && \
-    mkdir /usr/src/policy-gen
-
+    mkdir /usr/src/policy-gen && \
+    chown -R 1001:1001 /usr/src/policy-gen
 USER 1001
 # COPY cnf-features-deploy/ztp/ /usr/src/policy-gen
 
