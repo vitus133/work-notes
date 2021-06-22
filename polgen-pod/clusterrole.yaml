@@ -5,9 +5,14 @@ metadata:
 rules:
 - apiGroups:
   - ran.openshift.io
+  - ""
   resources:
   - sites
+  - configmaps
   verbs:
   - get
   - watch
   - list
+  - create
+  - update
+  - delete

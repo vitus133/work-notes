@@ -1,9 +1,6 @@
 # Image URL to use all building/pushing image targets
-IMG ?= polgen:latest
-REG ?= quay.io/vgrinber/polgen
-ZTP_REPO ?= https://github.com/openshift-kni/cnf-features-deploy.git
 
-all: build push presync
+all: pre-sync post-sync
 
 ##@ General
 
@@ -23,17 +20,13 @@ help: ## Display this help.
 
 ##@ Build
 
-build: ## Build docker image.
-	# git submodule update --remote
-	# cd cnf-features-deploy/ztp/ztp-policy-generator/kustomize/plugin/policyGenerator/v1/policygenerator/ && \
-	# go build -o PolicyGenerator && pwd
-	podman build -t ${IMG} .
+post-sync: ## Build docker image.
+	podman build -t polgen:latest .
+	podman push polgen:latest quay.io/vgrinber/polgen
+
 
 pre-sync: ## Build presync
 	podman build -t presync:latest presync/
 	podman push presync:latest quay.io/vgrinber/presync
-
-push: ## Push docker image.
-	podman push ${IMG} ${REG}
 
 ##@ Deployment - TODO
