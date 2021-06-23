@@ -4,32 +4,7 @@ import os
 import sys
 import json
 from kubernetes import client, config
-# from kubernetes.client.configuration import logging as log
 from codecs import encode, decode
-
-class Client():
-  def __init__(self):
-    try:
-      srv_acct_root = '/var/run/secrets/kubernetes.io/serviceaccount'
-      apiserver = 'https://kubernetes.default.svc'
-
-      with open(os.path.join(srv_acct_root, 'token'), 'r') as t:
-        token = t.read()
-
-      cacert = os.path.join(srv_acct_root, 'ca.crt')    
-
-      # Create and initialize the configuration object
-      cfg = client.Configuration()
-      cfg.host = f"{apiserver}:443"
-      cfg.verify_ssl = True
-      cfg.ssl_ca_cert = cacert
-      cfg.api_key = {"authorization": "Bearer " + token}
-
-      # Create an ApiClient with our config
-      self.client = client.ApiClient(cfg)
-
-    except Exception as e:
-      print(e)
 
 def prune_managed(site:dict):
   site['object']['metadata'].pop("annotations", None)
@@ -46,9 +21,8 @@ def create_site_file(site: dict, sites_path: str=''):
   
 
 def main():
- 
-  api_client = Client()
-  api = client.CustomObjectsApi(api_client.client)
+  config.load_incluster_config()
+  api = client.CustomObjectsApi()
 
   group="ran.openshift.io"
   version="v1alpha1"
