@@ -3,6 +3,7 @@
 export APISERVER=https://kubernetes.default.svc:443
 export TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 export CACERT=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+export NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
 
 oc login $APISERVER --token=$TOKEN --certificate-authority=$CACERT &> /dev/null
 
@@ -11,7 +12,7 @@ if oc get configmap/rv &> /dev/null; then
     oc delete configmap/rv &> /dev/null
 fi
 
-RV=$(curl -s $APISERVER/apis/ran.openshift.io/v1alpha1/namespaces/default/sites --header "Authorization: Bearer $TOKEN" --cacert $CACERT | jq -rM '.metadata.resourceVersion')
+RV=$(curl -s $APISERVER/apis/ran.openshift.io/v1alpha1/namespaces/$NAMESPACE/sites --header "Authorization: Bearer $TOKEN" --cacert $CACERT | jq -rM '.metadata.resourceVersion')
 
 # Store in configmap
 if oc create configmap rv --from-literal=sitesResourceVersion=$RV; then
