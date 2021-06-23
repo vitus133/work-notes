@@ -1,6 +1,6 @@
 # Image URL to use all building/pushing image targets
 
-all: pre-sync post-sync
+all: ztp-site-generator
 
 ##@ General
 
@@ -20,13 +20,8 @@ help: ## Display this help.
 
 ##@ Build
 
-post-sync: ## Build docker image.
-	podman build -t polgen:latest .
-	podman push polgen:latest quay.io/vgrinber/polgen
-
-
-pre-sync: ## Build presync
-	podman build -t presync:latest presync/
-	podman push presync:latest quay.io/vgrinber/presync
+ztp-site-generator: ## Build docker image.
+	podman build -t ztp-site-generator:latest .
+	podman push ztp-site-generator:latest quay.io/vgrinber/ztp-site-generator
 
 ##@ Deployment - TODO
