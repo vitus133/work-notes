@@ -21,7 +21,7 @@ RUN python -m venv venv && \
     python -m pip install kubernetes
     
 
-COPY --chown=1001 src/pre-sync.sh src/watcher.py  /usr/src/hook/
+COPY --chown=1001 src/*  /usr/src/hook/
 USER 1001
 
 

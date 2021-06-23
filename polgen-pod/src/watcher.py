@@ -5,7 +5,31 @@ import sys
 import json
 from kubernetes import client, config
 from codecs import encode, decode
+from logger import Logger
 
+class Client(Logger):
+  def __init__(self):
+    try:
+      srv_acct_root = '/var/run/secrets/kubernetes.io/serviceaccount'
+      apiserver = 'https://kubernetes.default.svc'
+
+      with open(os.path.join(srv_acct_root, 'token'), 'r') as t:
+        token = t.read()
+
+      cacert = os.path.join(srv_acct_root, 'ca.crt')    
+
+      # Create and initialize the configuration object
+      cfg = client.Configuration()
+      cfg.host = f"{apiserver}:443"
+      cfg.verify_ssl = True
+      cfg.ssl_ca_cert = cacert
+      cfg.api_key = {"authorization": "Bearer " + token}
+
+      # Create an ApiClient with our config
+      self.client = client.ApiClient(cfg)
+
+    except Exception as e:
+      logger.exception(e)
 
 def prune_managed(site:dict):
   site['object']['metadata'].pop("annotations", None)
@@ -16,30 +40,14 @@ def prune_managed(site:dict):
   site['object']['metadata'].pop("selfLink", None)
   site['object']['metadata'].pop("uid", None)
 
-def create_site_file(site: dict, path: str=''):
+def create_site_file(site: dict, sites_path: str=''):
   prune_managed(site)
   print(json.dumps(site, indent=2))
   
 
 def main():
-    srv_acct_root = '/var/run/secrets/kubernetes.io/serviceaccount'
-    apiserver = 'https://kubernetes.default.svc'
-
-    with open(os.path.join(srv_acct_root, 'token'), 'r') as t:
-      aToken = t.read()
-
-    cacert = os.path.join(srv_acct_root, 'ca.crt')    
-
-    # Create and initialize the configuration object
-    aConfiguration = client.Configuration()
-    aConfiguration.host = f"{apiserver}:443"
-    aConfiguration.verify_ssl = True
-    aConfiguration.ssl_ca_cert = cacert
-    aConfiguration.api_key = {"authorization": "Bearer " + aToken}
-
-    # Create a ApiClient with our config
-    aApiClient = client.ApiClient(aConfiguration)
-    api = client.CustomObjectsApi(aApiClient)
+    api_client = Client()
+    api = client.CustomObjectsApi(api_client.client)
 
     group="ran.openshift.io"
     version="v1alpha1"
