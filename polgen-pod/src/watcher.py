@@ -16,7 +16,7 @@ class SiteApi():
     self.group="ran.openshift.io"
     self.version="v1alpha1"
     self.namespace=namespace
-    self.plural="sites"
+    self.plural="siteconfigs"
     self.watch = True
 
   def watch_sites(self, rv):

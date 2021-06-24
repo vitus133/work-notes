@@ -31,10 +31,13 @@ prod: build push ## Make and push production build.
 
 ##@ Cluster configuration deployment
 deploy: ## Deploy RBAC manifests and RAN Site CRD. TODO: Move top real site crd from ZTP repo.
-	oc apply -f hack/clusterrole.yaml -f hack/binding.yaml -f hack/site-crd.yaml
-
+	oc apply -f deployment
+undeploy: ## Undeploy RBAC manifests and RAN Site CRD. TODO: Move top real site crd from ZTP repo.
+	oc delete -f deployment
 ##@ Debug
 hack-crd: ## Applies assisted installer, metal3 and hive CRDs. For debug when not having AI and Hive installed on your cluster.
+	oc apply -f hack/stub-ai-crd
+unhack-crd: ## Removes assisted installer, metal3 and hive CRDs. For debug when not having AI and Hive installed on your cluster.
 	oc apply -f hack/stub-ai-crd
 run: ## Run the debug pod.
 	oc apply -f pod.yaml

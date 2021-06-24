@@ -1,9 +1,0 @@
-apiVersion: ran.openshift.io/v1alpha1
-kind: Site
-metadata:
-  name: sample-site-5
-  namespace: default
-spec:
-  message: foo
-  agent:
-    label: du-sno

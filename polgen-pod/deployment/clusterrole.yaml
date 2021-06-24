@@ -7,7 +7,7 @@ rules:
 - apiGroups:
   - ran.openshift.io
   resources:
-  - sites
+  - siteconfigs
   verbs:
   - get
   - watch
