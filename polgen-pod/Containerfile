@@ -23,6 +23,3 @@ RUN python -m venv venv && \
 
 COPY --chown=1001 src/*  /usr/src/hook/
 USER 1001
-
-
-

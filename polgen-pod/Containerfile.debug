@@ -1,5 +1,11 @@
+
 FROM ztp-site-generator:latest
+USER root
+RUN venv/bin/pip install pyinstaller &&\
+    chown -R 1001:1001 /usr/src/hook  
+USER 1001
 COPY --chown=1001 hack/example-crs  /usr/src/hook/example-crs
+
 
 
 

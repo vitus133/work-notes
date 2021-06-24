@@ -28,7 +28,9 @@ class SiteApi():
 
 
 class PolicyGenWrapper():
-  pass
+  def __init__(self, src_dir:str, target_dir:str):
+    pass
+
 
 class SiteResponseParser():
   def __init__(self, api_response):
