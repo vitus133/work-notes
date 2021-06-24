@@ -41,4 +41,6 @@ run: ## Run the debug pod.
 kill: ## Kill the debug pod.
 	oc delete -f pod.yaml
 repeat: kill debug run ## Kill running pod, build debug and re-run the pod.
+shell: ## Open a shell into the running pod
+	oc exec -it ztp-site-generator -- /bin/bash
 
