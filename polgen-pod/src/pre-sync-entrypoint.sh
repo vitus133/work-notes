@@ -7,7 +7,8 @@ if oc get configmap/rv &> /dev/null; then
     oc delete configmap/rv &> /dev/null
 fi
 
-RV=$(curl -s $APISERVER/apis/ran.openshift.io/v1alpha1/namespaces/$NAMESPACE/sites --header "Authorization: Bearer $TOKEN" --cacert $CACERT | jq -rM '.metadata.resourceVersion')
+#RV=$(curl -s $APISERVER/apis/ran.openshift.io/v1alpha1/namespaces/$NAMESPACE/sites --header "Authorization: Bearer $TOKEN" --cacert $CACERT | jq -rM '.metadata.resourceVersion')
+RV=$(curl -s $APISERVER/apis/ran.openshift.io/v1/siteconfigs --header "Authorization: Bearer $TOKEN" --cacert $CACERT | jq -rM '.metadata.resourceVersion')
 
 # Store in configmap
 if oc create configmap rv --from-literal=sitesResourceVersion=$RV; then

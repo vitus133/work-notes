@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: dummy-site-plan-sno-du
+  name: dummy-site-plan-sno-du-3
 ---
 apiVersion: ran.openshift.io/v1
 kind: SiteConfig
 metadata:
-  name: "dummy-site-plan-sno-du"
-  namespace: "dummy-site-plan-sno-du"
+  name: dummy-site-plan-sno-du-3
+  namespace: dummy-site-plan-sno-du-3
 spec:
   baseDomain: "ptp.lab.eng.bos.redhat.com"
   pullSecretRef:
@@ -18,7 +18,7 @@ spec:
   sshPrivateKeySecretRef:
     name: "name of the private key secret"
   clusters:
-  - clusterName: "du-sno1"
+  - clusterName: "du-sno3"
     clusterType: sno
     clusterProfile: du
     clusterLabels:

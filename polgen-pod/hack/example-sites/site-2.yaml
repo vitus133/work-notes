@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: dummy-site-plan-sno-du
+  name: dummy-site-plan-sno-du-2
 ---
 apiVersion: ran.openshift.io/v1
 kind: SiteConfig
 metadata:
-  name: "dummy-site-plan-sno-du"
-  namespace: "dummy-site-plan-sno-du"
+  name: dummy-site-plan-sno-du-2
+  namespace: dummy-site-plan-sno-du-2
 spec:
   baseDomain: "ptp.lab.eng.bos.redhat.com"
   pullSecretRef:
