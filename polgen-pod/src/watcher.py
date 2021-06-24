@@ -26,9 +26,77 @@ class SiteApi():
       plural=self.plural, watch=self.watch,
       resource_version=rv, timeout_seconds=5)
 
-class AcmApi():
-  pass
+class AgentClusterInstallApi():
+# apiVersion: extensions.hive.openshift.io/v1beta1
+# kind: AgentClusterInstall
+# metadata:
+#   namespace: assisted-installer 
+  def __init__(self, namespace="assisted-installer"):
+    self.api = client.CustomObjectsApi()
+    self.group="extensions.hive.openshift.io"
+    self.version="v1beta1"
+    self.namespace=namespace
+    self.plural="agentclusterinstalls"
+    
 
+class BareMetalHostApi():
+  # apiVersion: metal3.io/v1alpha1
+  # kind: BareMetalHost
+  # metadata:
+  #   name: cnfocto1-bmh
+  #   namespace: assisted-installer
+  def __init__(self, namespace="assisted-installer"):
+    self.api = client.CustomObjectsApi()
+    self.group="metal3.io"
+    self.version="v1alpha1"
+    self.namespace=namespace
+    self.plural="baremetalhosts"
+
+
+class ClusterDeploymentApi():
+# apiVersion: hive.openshift.io/v1
+# kind: ClusterDeployment
+# metadata:
+#   name: cnfocto1-deployment
+#   namespace: assisted-installer
+  def __init__(self, namespace="assisted-installer"):
+    self.api = client.CustomObjectsApi()
+    self.group="hive.openshift.io"
+    self.version="v1"
+    self.namespace=namespace
+    self.plural="clusterdeployments"
+
+
+class InfraEnvApi():
+# apiVersion: agent-install.openshift.io/v1beta1
+# kind: InfraEnv
+# metadata:
+#   name: cnfocto1-installenv
+#   namespace: assisted-installer
+  def __init__(self, namespace="assisted-installer"):
+    self.api = client.CustomObjectsApi()
+    self.group="agent-install.openshift.io"
+    self.version="v1beta1"
+    self.namespace=namespace
+    self.plural="infraenvs"
+
+
+class NMStateConfigApi():
+# apiVersion: agent-install.openshift.io/v1beta1
+# kind: NMStateConfig
+# metadata:
+#   name: nmstate-sno
+#   namespace: assisted-installer
+  def __init__(self, namespace="assisted-installer"):
+    self.api = client.CustomObjectsApi()
+    self.group="agent-install.openshift.io"
+    self.version="v1beta1"
+    self.namespace=namespace
+    self.plural="nmstateconfigs"
+
+
+class PolicyGenWrapper():
+  pass
 
 class SiteResponseParser():
   def __init__(self, api_response):
