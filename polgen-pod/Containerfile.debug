@@ -1,0 +1,6 @@
+FROM ztp-site-generator:latest
+COPY --chown=1001 hack/example-crs  /usr/src/hook/example-crs
+
+
+
+

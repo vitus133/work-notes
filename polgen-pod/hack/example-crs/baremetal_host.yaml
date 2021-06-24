@@ -1,0 +1,22 @@
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: cnfocto1-bmh
+  namespace: assisted-installer
+  labels:
+    infraenvs.agent-install.openshift.io: "cnfocto1-installenv"
+  annotations:
+    inspect.metal3.io: disabled
+    #bmac.agent-install.openshift.io/hostname: {{ hostname }}
+spec:
+  online: true
+  automatedCleaningMode: disabled
+  # This is the eno1 mac address
+  bootMACAddress: "E4:43:4B:F6:12:E0" #{{ bmc_bootmac_address }}
+  bmc:
+    address: "idrac-virtualmedia+https://10.22.22.22/redfish/v1/Systems/System.Embedded.1" #{{ bmc_redfish_endpoint }}
+    credentialsName: cnfocto1-bmh-secret
+    disableCertificateVerification: true
+  #rootDeviceHints:
+
+

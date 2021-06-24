@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
-  name: default:converter
+  name: converter
   namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io

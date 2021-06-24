@@ -1,0 +1,24 @@
+apiVersion: hive.openshift.io/v1
+kind: ClusterDeployment
+metadata:
+  name: cnfocto1-deployment
+  namespace: assisted-installer
+spec:
+  baseDomain: ptp.lab.eng.bos.redhat.com
+  clusterName: cnfocto1
+  controlPlaneConfig:
+    servingCertificates: {}
+  installed: false
+  clusterInstallRef:
+    group: extensions.hive.openshift.io
+    kind: AgentClusterInstall
+    # aci == AgentClusterInstall
+    name: cnfocto1
+    version: v1beta1
+  platform:
+    agentBareMetal:
+      agentSelector:
+        matchLabels:
+          agent-label: du-sno
+  pullSecretRef:
+    name: assisted-deployment-pull-secret

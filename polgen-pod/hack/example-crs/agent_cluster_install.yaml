@@ -1,0 +1,25 @@
+---
+apiVersion: extensions.hive.openshift.io/v1beta1
+kind: AgentClusterInstall
+metadata:
+  name: cnfocto1
+  namespace: assisted-installer
+spec:
+  clusterDeploymentRef:
+    name: cnfocto1-deployment
+  imageSetRef:
+    name: "openshift-4.8-nightly" #{{ cluster_imageset }}
+  manifestsConfigMapRef:
+    name: cnfocto1-extra-install-manifests
+  networking:
+    machineNetwork:
+      - cidr: "10.16.231.0/24" #"{{ machine_network_cidr }}/{{ machine_network_sufix }}"
+    networkType: OVNKubernetes
+    #clusterNetwork:
+    #  - cidr: "{{ cluster_network_cidr }}/{{ cluster_network_sufix }}" 
+    #    hostPrefix: {{ cluster_network_host_prefix }}
+    #serviceNetwork:
+    #  - "{{ service_network_cidr }}/{{ service_network_sufix }}"
+  provisionRequirements:
+    controlPlaneAgents: 1
+  sshPublicKey: 'ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFjkDZdkSOhY2U2Dx0MRLLQDMXp8axGC2qbS37FnMqSD86R1Om4q+EC9c8D19LLfn7yNFvJOpY+fFefuLSHxfm4= imiller@redhat.com'

@@ -1,0 +1,53 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cnfocto1-extra-install-manifests
+  namespace: assisted-installer
+data:
+  04_test_extra_manifests_1.yaml: |
+    apiVersion: machineconfiguration.openshift.io/v1
+    kind: MachineConfig
+    metadata:
+      labels:
+        machineconfiguration.openshift.io/role: master
+      name: 04-test-extra-manifests1
+    spec:
+      config:
+        ignition:
+          version: 3.2.0
+        storage:
+          files:
+          - contents:
+              source: data:text/plain;charset=utf-8;base64,IyBUaGlzIGlzIHNpbXBseSBhIHRlc3QgZmlsZSBmb3IKIyBkZXBsb3lpbmcgZXh0cmEgbWFjaGluZSBjb25maWcKIyBhdCBpbnN0YWxsIHRpbWUKCg==
+            mode: 420
+            overwrite: true
+            path: /root/test-file-1
+            user:
+              name: root
+          - contents:
+              source: data:text/plain;charset=utf-8;base64,IyBUaGlzIGlzIGEgc2Vjb25kIHRlc3QgZmlsZSBmcm9tCiMgdGhlIGZpcnN0IG1hY2hpbmUgY29uZmlnCgo=
+            mode: 420
+            overwrite: true
+            path: /root/test-file-2
+            user:
+              name: root
+  05_test_extra_manifests2.yaml: |
+    apiVersion: machineconfiguration.openshift.io/v1
+    kind: MachineConfig
+    metadata:
+      labels:
+        machineconfiguration.openshift.io/role: master
+      name: 05-test-extra-manifests2
+    spec:
+      config:
+        ignition:
+          version: 3.2.0
+        storage:
+          files:
+          - contents:
+              source: data:text/plain;charset=utf-8;base64,IyBUaGlzIGlzIGEgdGVzdCBmaWxlIGZyb20KIyBhIHNlY29uZCBtYWNoaW5lIGNvbmZpZwoK
+            mode: 420
+            overwrite: true
+            path: /root/second-test-file
+            user:
+              name: root

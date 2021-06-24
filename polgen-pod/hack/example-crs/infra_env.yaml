@@ -1,0 +1,18 @@
+apiVersion: agent-install.openshift.io/v1beta1
+kind: InfraEnv
+metadata:
+  name: cnfocto1-installenv
+  namespace: assisted-installer
+spec:
+  clusterRef:
+    name: cnfocto1-deployment
+    namespace: assisted-installer
+  agentLabelSelector:
+    matchLabels:
+      agent-label: du-sno
+  pullSecretRef:
+    name: assisted-deployment-pull-secret
+  sshAuthorizedKey: 'ecdsa-sha2-nistp256 AAAAEdummy= dummy@example.com'
+  nmStateConfigLabelSelector:
+    matchLabels:
+      nmstate-label: cnfocto1-nmstate
