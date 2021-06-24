@@ -8,31 +8,57 @@ import yaml
 import tempfile
 import subprocess
 from kubernetes import client, config
+import logging
 
+class Logger():
+  @property
+  def logger(self):
+    name = 'ztp-site-generator.watcher'
+    lg = logging.getLogger(name)
+    lg.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(name)s %(asctime)s %(levelname)s [%(module)s:%(lineno)s]: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S %Z')
+       
+    if not lg.hasHandlers():
+        # logging to console
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.DEBUG)
+        handler.setFormatter(formatter)
+        lg.addHandler(handler)
+    return lg
 
-class SiteApi():
+class SiteApi(Logger):
   def __init__(self):
-    self.api = client.CustomObjectsApi()
-    self.group="ran.openshift.io"
-    self.version="v1"
-    self.plural="siteconfigs"
-    self.watch = True
+    try:
+      self.api = client.CustomObjectsApi()
+      self.group="ran.openshift.io"
+      self.version="v1"
+      self.plural="siteconfigs"
+      self.watch = True
+    except Exception as e:
+      self.logger.exception(e)
 
   def watch_sites(self, rv):
-    return self.api.list_cluster_custom_object_with_http_info(
-      group=self.group, version=self.version,
-      plural=self.plural, watch=self.watch,
-      resource_version=rv, timeout_seconds=5)
+    try:
+      return self.api.list_cluster_custom_object_with_http_info(
+        group=self.group, version=self.version,
+        plural=self.plural, watch=self.watch,
+        resource_version=rv, timeout_seconds=5)
+    except Exception as e:
+      self.logger.exception(e)
 
-
-class PolicyGenWrapper():
+class PolicyGenWrapper(Logger):
   def __init__(self, paths: list):
-    for fl in os.listdir('example-crs'):
-      path = os.path.join('example-crs', fl)
-      shutil.copy(path, paths[1])
+    try:
+      for fl in os.listdir('example-crs'):
+        path = os.path.join('example-crs', fl)
+        shutil.copy(path, paths[1])
+        self.logger.debug(f"STUB: Copied {path} to {paths[1]}")
+    except Exception as e:
+      self.logger.exception(e)
 
-
-class SiteResponseParser():
+class SiteResponseParser(Logger):
   def __init__(self, api_response):
     if api_response[1] != 200:
       raise Exception(f"Site API call error: {api_response}")
@@ -47,8 +73,8 @@ class SiteResponseParser():
         os.mkdir(self.del_path)
         os.mkdir(self.upd_path)
         self._parse(api_response[0])
-        print(f"Sites to delete are: {self.del_list}")
-        print(f"Sites to create/update are: {self.upd_list}")
+        self.logger.debug(f"Sites to delete are: {self.del_list}")
+        self.logger.debug(f"Sites to create/update are: {self.upd_list}")
 
         out_tmpdir = tempfile.mkdtemp()
         out_del_path = os.path.join(out_tmpdir, 'delete')
@@ -57,7 +83,6 @@ class SiteResponseParser():
         os.mkdir(out_upd_path)
         paths = ((self.del_path, out_del_path), 
                 (self.upd_path, out_upd_path))
-        print(paths)
         for path in paths:
           PolicyGenWrapper(path)
 
@@ -67,19 +92,19 @@ class SiteResponseParser():
           stderr=subprocess.PIPE,
           check=True
         )
-        print(delete_status.stdout)
+        self.logger.info(delete_status.stdout)
 
         apply_status = subprocess.run(
           ["oc", "apply", "-f", f"{out_upd_path}"],
           stdout=subprocess.PIPE,
           stderr=subprocess.PIPE
         )
-        print(apply_status.stdout)
+        self.logger.info(apply_status.stdout)
       except Exception as e:
-        print(f"Exception by SiteResponseParser: {e}")
+        self.logger.exception(f"Exception by SiteResponseParser: {e}")
       finally:
         shutil.rmtree(self.tmpdir)
-        # shutil.rmtree(out_tmpdir)
+        shutil.rmtree(out_tmpdir)
 
   def _parse(self, resp_data):
     # The response comes in two flavors:
@@ -96,7 +121,7 @@ class SiteResponseParser():
       else:
         pass  # Empty response - no changes
     except Exception as e:
-      print(f"Exception when parsing API response: {e}")
+      self.logger.Exception(f"Exception when parsing API response: {e}")
 
   def _prune_managed_info(self, site:dict):
     site['object']['metadata'].pop("annotations", None)
@@ -108,20 +133,26 @@ class SiteResponseParser():
     site['object']['metadata'].pop("uid", None)
 
   def _create_site_file(self, site: dict):
-    self._prune_managed_info(site)
-    action = site.get("type")
-    if action == "DELETED":
-      path, lst = self.del_path, self.del_list
-    else:
-      path, lst = self.upd_path, self.upd_list
-    handle, name = tempfile.mkstemp(dir=path)
-    with open(name, 'w') as f:
-      yaml.dump(site.get("object"), f)
-    lst.append(site.get("object").get("metadata").get("name"))
-
+    try:
+      self._prune_managed_info(site)
+      action = site.get("type")
+      if action == "DELETED":
+        path, lst = self.del_path, self.del_list
+      else:
+        path, lst = self.upd_path, self.upd_list
+      handle, name = tempfile.mkstemp(dir=path)
+      with open(name, 'w') as f:
+        yaml.dump(site.get("object"), f)
+      lst.append(site.get("object").get("metadata").get("name"))
+    except Exception as e:
+      self.logger.exception(e)
 
 if __name__ == '__main__':
-  config.load_incluster_config()
-  site_api = SiteApi()
-  resp = site_api.watch_sites(sys.argv[1])
-  SiteResponseParser(resp)
+  try:
+    lg = Logger()
+    config.load_incluster_config()
+    site_api = SiteApi()
+    resp = site_api.watch_sites(sys.argv[1])
+    SiteResponseParser(resp)
+  except Exception as e:
+    lg.logger.exception(e)
