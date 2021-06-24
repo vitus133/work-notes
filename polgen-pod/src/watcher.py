@@ -61,17 +61,20 @@ class SiteResponseParser():
         for path in paths:
           PolicyGenWrapper(path)
 
-        subprocess.run(
+        delete_status = subprocess.run(
           ["oc", "delete", "-f", f"{out_del_path}"],
           stdout=subprocess.PIPE,
-          stderr=subprocess.PIPE
+          stderr=subprocess.PIPE,
+          check=True
         )
+        print(delete_status.stdout)
 
-        subprocess.run(
+        apply_status = subprocess.run(
           ["oc", "apply", "-f", f"{out_upd_path}"],
           stdout=subprocess.PIPE,
           stderr=subprocess.PIPE
         )
+        print(apply_status.stdout)
       except Exception as e:
         print(f"Exception by SiteResponseParser: {e}")
       finally:
