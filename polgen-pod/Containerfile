@@ -3,23 +3,30 @@ FROM quay.io/openshift/origin-cli:latest
 USER root
 
 # For CLI use in pre-sync
-RUN INSTALL_PKGS="jq" && \
+RUN INSTALL_PKGS="tar unzip golang jq tree" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
-    yum clean all -y
+    yum clean all -y && \
+    curl -sSLo - https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v4.1.3/kustomize_v4.1.3_linux_amd64.tar.gz | \
+        tar xzf - -C /usr/local/bin
     
 # Create working directory
-RUN mkdir /usr/src/hook &&\
-    chown -R 1001:1001 /usr/src/hook        
+RUN mkdir /usr/src/hook
+            
 
 WORKDIR /usr/src/hook
-
 # For Python client
 RUN python -m venv venv && \
     source venv/bin/activate && \
     python -m pip install --upgrade pip && \
-    python -m pip install kubernetes
-    
+    python -m pip install kubernetes jinja2
 
-COPY --chown=1001 src/*  /usr/src/hook/
+COPY src/*  /usr/src/hook/
+
+
+COPY --chown=1001 gitOps.zip  /usr/src/hook/
+RUN unzip gitOps.zip && rm gitOps.zip && mv cnf-features-deploy* cnf-features-deploy
+WORKDIR /usr/src/hook/cnf-features-deploy/ztp/ztp-policy-generator/kustomize/plugin/policyGenerator/v1/policygenerator
+RUN go build -o PolicyGenerator && \
+    chown -R 1001:1001 /usr/src/hook
 USER 1001
