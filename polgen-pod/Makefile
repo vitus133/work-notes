@@ -5,7 +5,7 @@ REG ?= quay.io/vgrinber/ztp-site-generator
 REPO_ZIP_LINK ?= https://github.com/serngawy/cnf-features-deploy/archive/refs/heads/gitOps.zip
 REPO_ZIP_NAME ?= gitOps.zip
 
-all: get_ztp prod
+all: prod
 
 ##@ General
 
@@ -26,23 +26,23 @@ help: ## Display this help.
 ##@ Build steps
 get_ztp: ## Download ZTP zip drom github
 	[ ! -f ${REPO_ZIP_NAME} ] && wget ${REPO_ZIP_LINK}
+
 samples: # Copy site CRD and psamples from ZTP zip
-	unzip gitOps.zip -x */vendor/* -x */cnf-tests/* -x */tools/* -x */openshift-ci/* -x */hack/* && \
+	unzip ${REPO_ZIP_NAME} -x */vendor/* -x */cnf-tests/* -x */tools/* -x */openshift-ci/* -x */hack/* && \
 	mv cnf-features-deploy* cnf-features-deploy && \
 	cp cnf-features-deploy/ztp/ran-site-plan-crd/site-config-crd.yaml deployment/ &&\
 	cp cnf-features-deploy/ztp/ztp-policy-generator/siteConfigExamples/* hack/example-sites/ && \
 	rm -rf cnf-features-deploy
 
-
-build: ## Build docker image.
+build_image: ## Build docker image.
 	podman build -t ztp-site-generator:latest -f Containerfile
-push:	## Push to Quay.io.
+push_image:	## Push to Quay.io.
 	podman push ztp-site-generator:latest ${REG}
 clean:
-	rm -f ${REPO_ZIP_NAME}
+	ZIP_NAME=${REPO_ZIP_NAME} hack/clean.sh
 
 ##@ Make and push
-prod: build push ## Make and push production build.
+prod: clean get_ztp samples build_image push_image ## Make and push production build.
 
 
 
