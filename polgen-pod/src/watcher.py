@@ -16,11 +16,13 @@ import logging
 class Logger():
     @property
     def logger(self):
+        fmt = '%(name)s %(asctime)s [%(levelname)s] \
+            [%(module)s:%(lineno)s]: %(message)s'
         name = 'ztp-site-generator.watcher'
         lg = logging.getLogger(name)
         lg.setLevel(logging.DEBUG)
         formatter = logging.Formatter(
-            '''%(name)s %(asctime)s [%(levelname)s] [%(module)s:%(lineno)s]: %(message)s''',
+            fmt,
             datefmt='%Y-%m-%d %H:%M:%S %Z')
 
         if not lg.hasHandlers():
@@ -155,7 +157,6 @@ class SiteResponseParser(Logger):
                 if not debug:
                     shutil.rmtree(self.tmpdir)
                     shutil.rmtree(out_tmpdir)
-
 
     def _parse(self, resp_data):
         # The response comes in two flavors:
