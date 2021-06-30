@@ -73,7 +73,6 @@ class PolicyGenWrapper(Logger):
             self.logger.debug(f"Success writing {cwd}/{oneliner_file}: {pgy}")
 
             # Run policy generator
-            # Run policy generator
             with subprocess.Popen(
                             args, stderr=subprocess.PIPE,
                             stdout=subprocess.PIPE,
@@ -81,15 +80,39 @@ class PolicyGenWrapper(Logger):
                 output = pg.communicate()
                 if len(output[1]):
                     raise Exception(f"Manifest conversion failed: {output[1]}")
-                if len(output[0]):
-                    self.logger.debug(output[0])
+                # if len(output[0]):
+                #     self.logger.debug(output[0])
 
         except Exception as e:
             self.logger.exception(e)
 
 
+class OcWrapper(Logger):
+    def __init__(self, action: str, path: str):
+        try:
+            for f in self._find_files(path):
+                self.logger.debug(f"Attempting {action} {f}")
+                cmd = ["oc", f"{action}", "-f", f"{f}"]
+                self.logger.debug(cmd)
+                status = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=True)
+                self.logger.debug(status.stdout)
+                if status.returncode != 0:
+                    raise Exception(f"OC wrapper: {status.stderr}")
+        except Exception as e:
+            self.logger.exception(e)
+
+    def _find_files(self, root):
+        for d, dirs, files in os.walk(root):
+            for f in files:
+                yield os.path.join(d, f)
+
+
 class SiteResponseParser(Logger):
-    def __init__(self, api_response):
+    def __init__(self, api_response, debug=False):
         if api_response[1] != 200:
             raise Exception(f"Site API call error: {api_response}")
         else:
@@ -115,37 +138,23 @@ class SiteResponseParser(Logger):
                 # Do deletes
                 if len(self.del_list) > 0:
                     PolicyGenWrapper([self.del_path, out_del_path])
-                    for f in self._find_files(out_del_path):
-                        self.logger.debug(f"Deleting {f}")
-                        # delete_status = subprocess.run(
-                        #     ["oc", "delete", "-f", f"{f}"],
-                        #     stdout=subprocess.PIPE,
-                        #     stderr=subprocess.PIPE,
-                        #     check=True
-                        # )
-                    # self.logger.info(delete_status.stdout)
+                    OcWrapper('delete', out_del_path)
+                else:
+                    self.logger.debug("No objects to delete")
 
                 # Do creates / updates
                 if len(self.upd_list) > 0:
                     PolicyGenWrapper([self.upd_path, out_upd_path])
-                    for f in self._find_files(out_upd_path):
-                        self.logger.debug(f"Updating {f}")
-                        # apply_status = subprocess.run(
-                        #     ["oc", "apply", "-f", f"{f}"],
-                        #     stdout=subprocess.PIPE,
-                        #     stderr=subprocess.PIPE
-                        # )
-                    # self.logger.info(apply_status.stdout)
+                    OcWrapper('apply', out_upd_path)
+                else:
+                    self.logger.debug("No objects to update")
+
             except Exception as e:
                 self.logger.exception(f"Exception by SiteResponseParser: {e}")
-            # finally:
-            #     shutil.rmtree(self.tmpdir)
-            #     shutil.rmtree(out_tmpdir)
-
-    def _find_files(self, root):
-        for d, dirs, files in os.walk(root):
-            for f in files:
-                yield os.path.join(d, f)
+            finally:
+                if not debug:
+                    shutil.rmtree(self.tmpdir)
+                    shutil.rmtree(out_tmpdir)
 
 
     def _parse(self, resp_data):
@@ -197,6 +206,7 @@ if __name__ == '__main__':
         config.load_incluster_config()
         site_api = SiteApi()
         resp = site_api.watch_sites(sys.argv[1])
-        SiteResponseParser(resp)
+        debug = len(sys.argv) > 2
+        SiteResponseParser(resp, debug=debug)
     except Exception as e:
         lg.logger.exception(e)
