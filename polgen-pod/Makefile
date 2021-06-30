@@ -51,7 +51,7 @@ build_image: ## Build docker image.
 	podman build -t ztp-site-generator:latest -f Containerfile
 push_image:	## Push to Quay.io.
 	podman push ztp-site-generator:latest ${REG}
-clean:
+clean: ## Remove the cnf-features-deploy zip and clean site CRDs and site examples
 	ZIP_NAME=${REPO_ZIP_NAME} hack/clean.sh
 
 ##@ Make and push

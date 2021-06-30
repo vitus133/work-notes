@@ -115,28 +115,38 @@ class SiteResponseParser(Logger):
                 # Do deletes
                 if len(self.del_list) > 0:
                     PolicyGenWrapper([self.del_path, out_del_path])
-                    delete_status = subprocess.run(
-                        ["oc", "delete", "-f", f"{out_del_path}"],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                        check=True
-                    )
-                    self.logger.info(delete_status.stdout)
+                    for f in self._find_files(out_del_path):
+                        self.logger.debug(f"Deleting {f}")
+                        # delete_status = subprocess.run(
+                        #     ["oc", "delete", "-f", f"{f}"],
+                        #     stdout=subprocess.PIPE,
+                        #     stderr=subprocess.PIPE,
+                        #     check=True
+                        # )
+                    # self.logger.info(delete_status.stdout)
 
                 # Do creates / updates
                 if len(self.upd_list) > 0:
                     PolicyGenWrapper([self.upd_path, out_upd_path])
-                    apply_status = subprocess.run(
-                        ["oc", "apply", "-f", f"{out_upd_path}"],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE
-                    )
-                    self.logger.info(apply_status.stdout)
+                    for f in self._find_files(out_upd_path):
+                        self.logger.debug(f"Updating {f}")
+                        # apply_status = subprocess.run(
+                        #     ["oc", "apply", "-f", f"{f}"],
+                        #     stdout=subprocess.PIPE,
+                        #     stderr=subprocess.PIPE
+                        # )
+                    # self.logger.info(apply_status.stdout)
             except Exception as e:
                 self.logger.exception(f"Exception by SiteResponseParser: {e}")
-            finally:
-                shutil.rmtree(self.tmpdir)
-                shutil.rmtree(out_tmpdir)
+            # finally:
+            #     shutil.rmtree(self.tmpdir)
+            #     shutil.rmtree(out_tmpdir)
+
+    def _find_files(self, root):
+        for d, dirs, files in os.walk(root):
+            for f in files:
+                yield os.path.join(d, f)
+
 
     def _parse(self, resp_data):
         # The response comes in two flavors:
