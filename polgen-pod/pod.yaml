@@ -6,7 +6,7 @@ metadata:
 spec:
   containers:
     - name: ztp-site-generator-container
-      image: quay.io/vgrinber/ztp-site-generator:latest
+      image: quay.io/redhat_emp1/ztp-site-generator:latest
       command:
       - /bin/bash
       - -c

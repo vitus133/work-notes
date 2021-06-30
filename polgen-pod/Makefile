@@ -1,6 +1,18 @@
 # Image URL to use all building/pushing image targets
 # Note - you must be logged in. Do `podman login -u ... -p ... quay.io` before pushing images
-REG ?= quay.io/vgrinber/ztp-site-generator
+# To get push permission, email to <globalcustomerservice@redhat.com>:
+# Subject: Quay.io Employee access request
+# - Name, Surname:
+# <Your name and surname>
+# - Quay.io username:
+# <your quay.io username>
+# - Email address that your Quay.io username is linked to (it must have @redhat domain):
+# <your Red Hat email>
+# - Specify the type of your request:
+# Type 1
+REG ?= quay.io/redhat_emp1/ztp-site-generator
+
+
 # The link to download cnf-features-deploy as a zip file. 
 # TODO: Change the way policy gen code is pulled after moving to the final repo
 REPO_ZIP_LINK ?= https://github.com/serngawy/cnf-features-deploy/archive/refs/heads/gitOps.zip
@@ -56,10 +68,11 @@ hack-crd: ## Applies assisted installer, metal3 and hive CRDs. For debug when no
 unhack-crd: ## Removes assisted installer, metal3 and hive CRDs. For debug when not having AI and Hive installed on your cluster.
 	oc apply -f hack/stub-ai-crd
 run: ## Run the debug pod.
-	oc apply -f pod.yaml
+	oc apply -f pod.yaml && \
+	oc wait --for=condition=ready --timeout=60s pod/ztp-site-generator
 kill: ## Kill the debug pod.
 	oc delete -f pod.yaml
-repeat: kill debug run ## Kill running pod, build debug and re-run the pod.
+repeat: kill build_image push_image run shell ## Kill running pod, build, re-run the pod and get a shell to the pod
 shell: ## Open a shell into the running pod
 	oc exec -it ztp-site-generator -- /bin/bash
 
