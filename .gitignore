@@ -1,4 +1,6 @@
 temp/
 polgen-pod/old_stuff/
-polgen-pod/cnf-features-deploy/
+polgen-pod/cnf-features-deploy*/
+polgen-pod/hack/example-sites/
+polgen-pod/*.zip
 

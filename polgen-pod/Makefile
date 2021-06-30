@@ -1,6 +1,11 @@
 # Image URL to use all building/pushing image targets
 REG ?= quay.io/vgrinber/ztp-site-generator
-all: prod
+# The link to download cnf-features-deploy as a zip file. 
+# TODO: Change the way policy gen code is pulled after moving to the final repo
+REPO_ZIP_LINK ?= https://github.com/serngawy/cnf-features-deploy/archive/refs/heads/gitOps.zip
+REPO_ZIP_NAME ?= gitOps.zip
+
+all: get_ztp prod
 
 ##@ General
 
@@ -19,20 +24,32 @@ help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 ##@ Build steps
+get_ztp: ## Download ZTP zip drom github
+	[ ! -f ${REPO_ZIP_NAME} ] && wget ${REPO_ZIP_LINK}
+samples: # Copy site CRD and psamples from ZTP zip
+	unzip gitOps.zip -x */vendor/* -x */cnf-tests/* -x */tools/* -x */openshift-ci/* -x */hack/* && \
+	mv cnf-features-deploy* cnf-features-deploy && \
+	cp cnf-features-deploy/ztp/ran-site-plan-crd/site-config-crd.yaml deployment/ &&\
+	cp cnf-features-deploy/ztp/ztp-policy-generator/siteConfigExamples/* hack/example-sites/ && \
+	rm -rf cnf-features-deploy
+
+
 build: ## Build docker image.
 	podman build -t ztp-site-generator:latest -f Containerfile
 push:	## Push to Quay.io.
 	podman push ztp-site-generator:latest ${REG}
-debug-addons: ## Include additional files for debugging.
-	podman build -t ztp-site-generator:latest -f Containerfile.debug
+clean:
+	rm -f ${REPO_ZIP_NAME}
+
 ##@ Make and push
-debug: build debug-addons push ## Make and push debug build.
 prod: build push ## Make and push production build.
 
+
+
 ##@ Cluster configuration deployment
-deploy: ## Deploy RBAC manifests and RAN Site CRD. TODO: Move top real site crd from ZTP repo.
+deploy: ## Deploy RBAC manifests and RAN Site CRD.
 	oc apply -f deployment
-undeploy: ## Undeploy RBAC manifests and RAN Site CRD. TODO: Move top real site crd from ZTP repo.
+undeploy: ## Undeploy RBAC manifests and RAN Site CRD.
 	oc delete -f deployment
 ##@ Debug
 hack-crd: ## Applies assisted installer, metal3 and hive CRDs. For debug when not having AI and Hive installed on your cluster.

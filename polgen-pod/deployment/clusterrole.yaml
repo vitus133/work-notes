@@ -12,6 +12,12 @@ rules:
   - get
   - watch
   - list
+  # For debug
+  - create
+  - delete
+  - patch
+  - update
+
 
 - apiGroups:
   - ""

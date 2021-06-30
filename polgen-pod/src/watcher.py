@@ -5,6 +5,7 @@ import shutil
 import sys
 import json
 import yaml
+from jinja2 import Template
 import tempfile
 import subprocess
 from kubernetes import client, config
@@ -51,10 +52,30 @@ class SiteApi(Logger):
 class PolicyGenWrapper(Logger):
   def __init__(self, paths: list):
     try:
-      for fl in os.listdir('example-crs'):
-        path = os.path.join('example-crs', fl)
-        shutil.copy(path, paths[1])
-        self.logger.debug(f"STUB: Copied {path} to {paths[1]}")
+      
+      folders = [{'input': paths[0], 'output': paths[1]}]
+      cwd = '/usr/src/hook/cnf-features-deploy/ztp/ztp-policy-generator'
+      command = 'XDG_CONFIG_HOME=./ kustomize build --enable-alpha-plugins'
+      oneliner_file = 'policyGenerator.yaml'
+      # Render policyGenerator.yaml template into cwd
+      with open('pol_gen.yaml.j2', 'r') as tf:
+        t = tf.read()
+      tm = Template(t)
+      pgy = tm.render(folders=folders)
+      with open(os.path.join(cwd, oneliner_file), 'w') as of:
+        of.write(pgy)
+      self.logger.debug(f"Success writing {cwd}/{oneliner_file}: {pgy}")
+
+      # Run policy generator
+      pg_status = subprocess.run(
+          command,
+          stdout=subprocess.PIPE,
+          stderr=subprocess.PIPE,
+          check=True,
+          cwd=cwd
+        )
+      self.logger.info(pg_status.stdout)
+
     except Exception as e:
       self.logger.exception(e)
 
@@ -81,30 +102,31 @@ class SiteResponseParser(Logger):
         out_upd_path = os.path.join(out_tmpdir, 'update')
         os.mkdir(out_del_path)
         os.mkdir(out_upd_path)
-        paths = ((self.del_path, out_del_path), 
-                (self.upd_path, out_upd_path))
-        for path in paths:
-          PolicyGenWrapper(path)
-
-        delete_status = subprocess.run(
-          ["oc", "delete", "-f", f"{out_del_path}"],
-          stdout=subprocess.PIPE,
-          stderr=subprocess.PIPE,
-          check=True
-        )
-        self.logger.info(delete_status.stdout)
-
-        apply_status = subprocess.run(
-          ["oc", "apply", "-f", f"{out_upd_path}"],
-          stdout=subprocess.PIPE,
-          stderr=subprocess.PIPE
-        )
-        self.logger.info(apply_status.stdout)
+        # Do deletes
+        if len(self.del_list) > 0:
+          PolicyGenWrapper([self.del_path, out_del_path])
+          delete_status = subprocess.run(
+            ["oc", "delete", "-f", f"{out_del_path}"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True
+          )
+          self.logger.info(delete_status.stdout)
+        
+        # Do creates / updates
+        if len(self.upd_list) > 0:
+          PolicyGenWrapper([self.upd_path, out_upd_path])
+          apply_status = subprocess.run(
+            ["oc", "apply", "-f", f"{out_upd_path}"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+          )
+          self.logger.info(apply_status.stdout)
       except Exception as e:
         self.logger.exception(f"Exception by SiteResponseParser: {e}")
-      finally:
-        shutil.rmtree(self.tmpdir)
-        shutil.rmtree(out_tmpdir)
+      # finally:
+      #   shutil.rmtree(self.tmpdir)
+      #   shutil.rmtree(out_tmpdir)
 
   def _parse(self, resp_data):
     # The response comes in two flavors:
