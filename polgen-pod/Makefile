@@ -1,4 +1,5 @@
 # Image URL to use all building/pushing image targets
+# Note - you must be logged in. Do `podman login -u ... -p ... quay.io` before pushing images
 REG ?= quay.io/vgrinber/ztp-site-generator
 # The link to download cnf-features-deploy as a zip file. 
 # TODO: Change the way policy gen code is pulled after moving to the final repo
@@ -43,8 +44,6 @@ clean:
 
 ##@ Make and push
 prod: clean get_ztp samples build_image push_image ## Make and push production build.
-
-
 
 ##@ Cluster configuration deployment
 deploy: ## Deploy RBAC manifests and RAN Site CRD.
