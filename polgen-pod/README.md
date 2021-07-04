@@ -50,7 +50,7 @@ General
   help             Display this help.
 
 Build steps
-  get_ztp          Download ZTP zip drom github
+  get_ztp          Download ZTP zip from github
   build_image      Build docker image.
   push_image       Push to Quay.io.
   clean            Remove the cnf-features-deploy zip and clean site CRDs and site examples
