@@ -37,7 +37,7 @@ help: ## Display this help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 ##@ Build steps
-get_ztp: ## Download ZTP zip drom github
+get_ztp: ## Download ZTP zip from github
 	[ ! -f ${REPO_ZIP_NAME} ] && wget ${REPO_ZIP_LINK}
 
 samples: # Copy site CRD and psamples from ZTP zip
