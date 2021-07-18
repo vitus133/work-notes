@@ -23,10 +23,10 @@ RUN python -m venv venv && \
 
 COPY src/*  /usr/src/hook/
 
-
-COPY --chown=1001 gitOps.zip  /usr/src/hook/
-RUN unzip gitOps.zip -x */vendor/* -x */cnf-tests/* -x */tools/* -x */openshift-ci/* -x */hack/* && \
-    rm gitOps.zip && mv cnf-features-deploy* cnf-features-deploy
+ARG ZIP_NAME
+COPY --chown=1001 $ZIP_NAME  /usr/src/hook/
+RUN unzip $ZIP_NAME -x */vendor/* -x */cnf-tests/* -x */tools/* -x */openshift-ci/* -x */hack/* && \
+    rm $ZIP_NAME && mv cnf-features-deploy* cnf-features-deploy
 WORKDIR /usr/src/hook/cnf-features-deploy/ztp/ztp-policy-generator/kustomize/plugin/policyGenerator/v1/policygenerator
 RUN go build -o PolicyGenerator && \
     chown -R 1001:1001 /usr/src/hook

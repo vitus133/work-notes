@@ -15,8 +15,8 @@ REG ?= quay.io/redhat_emp1/ztp-site-generator
 
 # The link to download cnf-features-deploy as a zip file. 
 # TODO: Change the way policy gen code is pulled after moving to the final repo
-REPO_ZIP_LINK ?= https://github.com/serngawy/cnf-features-deploy/archive/refs/heads/gitOps.zip
-REPO_ZIP_NAME ?= gitOps.zip
+REPO_ZIP_LINK ?= https://github.com/openshift-kni/cnf-features-deploy/archive/refs/heads/master.zip
+REPO_ZIP_NAME ?= master.zip
 
 all: prod
 
@@ -48,7 +48,7 @@ samples: # Copy site CRD and psamples from ZTP zip
 	rm -rf cnf-features-deploy
 
 build_image: ## Build docker image.
-	podman build -t ztp-site-generator:latest -f Containerfile
+	podman build --build-arg ZIP_NAME=${REPO_ZIP_NAME} -t ztp-site-generator:latest -f Containerfile
 push_image:	## Push to Quay.io.
 	podman push ztp-site-generator:latest ${REG}
 clean: ## Remove the cnf-features-deploy zip and clean site CRDs and site examples
