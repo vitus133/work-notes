@@ -85,11 +85,9 @@ class PolicyGenWrapper(Logger):
                 output = pg.communicate()
                 if len(output[1]):
                     raise Exception(f"Manifest conversion failed: {output[1].decode()}")
-                # if len(output[0]):
-                #     self.logger.debug(output[0])
-
         except Exception as e:
-            self.logger.exception(e)
+            self.logger.exception(f"PolicyGenWrapper failed: {e}")
+            exit(1)
 
 
 class OcWrapper(Logger):
@@ -112,8 +110,10 @@ class OcWrapper(Logger):
                 err_file = ef.read()
             self.logger.debug(f"OC wrapper error:{nl}{err_file}")
             self.logger.exception(msg)
+            raise Exception(f"Failed to {action} target manifests")
         except Exception as e:
             self.logger.exception(e)
+            exit(1)
 
     def _find_files(self, root):
         for d, dirs, files in os.walk(root):
@@ -161,6 +161,7 @@ class SiteResponseParser(Logger):
 
             except Exception as e:
                 self.logger.exception(f"Exception by SiteResponseParser: {e}")
+                exit(1)
             finally:
                 if not debug:
                     shutil.rmtree(self.tmpdir)
@@ -207,6 +208,7 @@ class SiteResponseParser(Logger):
             lst.append(site.get("object").get("metadata").get("name"))
         except Exception as e:
             self.logger.exception(e)
+            exit(1)
 
 
 if __name__ == '__main__':
