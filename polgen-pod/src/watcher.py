@@ -84,7 +84,7 @@ class PolicyGenWrapper(Logger):
                             cwd=cwd, env=env) as pg:
                 output = pg.communicate()
                 if len(output[1]):
-                    raise Exception(f"Manifest conversion failed: {output[1]}")
+                    raise Exception(f"Manifest conversion failed: {output[1].decode()}")
                 # if len(output[0]):
                 #     self.logger.debug(output[0])
 
@@ -95,8 +95,8 @@ class PolicyGenWrapper(Logger):
 class OcWrapper(Logger):
     def __init__(self, action: str, path: str):
         try:
+            status = None
             for f in self._find_files(path):
-                self.logger.debug(f"Attempting {action} {f}")
                 cmd = ["oc", f"{action}", "-f", f"{f}"]
                 self.logger.debug(cmd)
                 status = subprocess.run(
@@ -104,16 +104,16 @@ class OcWrapper(Logger):
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     check=True)
-                self.logger.debug(status.stdout)
-                if status.returncode != 0:
-                    raise Exception(f"OC wrapper: {status.stderr}")
+                self.logger.debug(status.stdout.decode())
+        except subprocess.CalledProcessError as cpe:
+            nl = '\n'
+            msg = f"{cpe.stdout.decode()} {cpe.stderr.decode()}"
+            with open(f, 'r') as ef:
+                err_file = ef.read()
+            self.logger.debug(f"OC wrapper error:{nl}{err_file}")
+            self.logger.exception(msg)
         except Exception as e:
             self.logger.exception(e)
-
-    def _find_files(self, root):
-        for d, dirs, files in os.walk(root):
-            for f in files:
-                yield os.path.join(d, f)
 
 
 class SiteResponseParser(Logger):
