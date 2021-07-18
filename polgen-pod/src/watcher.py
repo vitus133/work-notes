@@ -59,7 +59,10 @@ class PolicyGenWrapper(Logger):
     def __init__(self, paths: list):
         try:
             folders = [{'input': paths[0], 'output': paths[1]}]
-            cwd = '/usr/src/hook/cnf-features-deploy/ztp/ztp-policy-generator'
+            src = '/usr/src/hook/cnf-features-deploy'
+            dest = '/tmp/cnf-features-deploy'
+            shutil.copytree(src, dest)
+            cwd = '/tmp/cnf-features-deploy/ztp/ztp-policy-generator'
             command = 'kustomize build --enable-alpha-plugins'
             oneliner_file = 'policyGenerator.yaml'
             env = os.environ.copy()
