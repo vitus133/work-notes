@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: ztp-site-generator
-  namespace: default
+  namespace: ran-sites
 spec:
   containers:
     - name: ztp-site-generator-container
