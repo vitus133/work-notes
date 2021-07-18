@@ -115,6 +115,11 @@ class OcWrapper(Logger):
         except Exception as e:
             self.logger.exception(e)
 
+    def _find_files(self, root):
+        for d, dirs, files in os.walk(root):
+            for f in files:
+                yield os.path.join(d, f)
+
 
 class SiteResponseParser(Logger):
     def __init__(self, api_response, debug=False):
