@@ -137,3 +137,11 @@ rules:
   - managedclusters/accept
   verbs:
   - update
+- apiGroups:
+  - cluster.open-cluster-management.io
+  resources:
+  - managedclustersets/join
+  verbs:
+  - update
+  - create
+  - delete
