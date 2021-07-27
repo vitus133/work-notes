@@ -14,11 +14,8 @@ REG ?= quay.io/redhat_emp1/ztp-site-generator
 
 
 # The link to download cnf-features-deploy as a zip file. 
-# TODO: Change the way policy gen code is pulled after moving to the final repo
-# REPO_ZIP_LINK ?= https://github.com/openshift-kni/cnf-features-deploy/archive/refs/heads/master.zip
-# REPO_ZIP_NAME ?= master.zip
-REPO_ZIP_LINK ?= https://github.com/vitus133/cnf-features-deploy/archive/refs/heads/argo-integ-acm.zip
-REPO_ZIP_NAME ?= argo-integ-acm.zip
+REPO_ZIP_LINK ?= https://github.com/openshift-kni/cnf-features-deploy/archive/refs/heads/master.zip
+REPO_ZIP_NAME ?= master.zip
 all: prod
 
 ##@ General
