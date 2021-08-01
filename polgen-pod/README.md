@@ -1,5 +1,7 @@
 # README #
 
+NOTE: This project is deprecated, I am moving it to the official upstream repository https://github.com/openshift-kni/cnf-features-deploy/tree/master/ztp
+
 This project provides the container definitions RAN site gitops project.
 
 ## What is this repository for? ##
