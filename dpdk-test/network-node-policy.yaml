@@ -1,0 +1,16 @@
+apiVersion: sriovnetwork.openshift.io/v1
+kind: SriovNetworkNodePolicy
+metadata:
+  name: sriov-nnp-dpdk-7f1
+  namespace: openshift-sriov-network-operator
+spec:
+  deviceType: vfio-pci
+  isRdma: false
+  nicSelector:
+    pfNames:
+      - ens7f1
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  numVfs: 5
+  priority: 10
+  resourceName: intel_dpdk
