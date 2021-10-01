@@ -1,31 +1,20 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: dpdk-testpmd
+  name: dpdk-base
   annotations:
-    k8s.v1.cni.cncf.io/networks: [dpdk-net1, dpdk-net2]
+    k8s.v1.cni.cncf.io/networks: dpdk-net-1, dpdk-net-2
   namespace: dpdk-net-ns
 spec:
   restartPolicy: Never
   containers:
   - name: dpdk-testpmd
-    image: quay.io/krister/centos8_nfv-container-dpdk-testpmd:latest
+    image: quay.io/vgrinber/testpmd-container-app-testpmd:v0.2.2
+    command:
+      - /bin/bash
+      - -c
+      - "sleep inf"
     imagePullPolicy: Always
-    env:
-    - name: PROMISC_DEVICES
-      value: "n"
-    - name: DISABLE_CPU_LOAD_BALANCE
-      value: "n"
-    - name: SRIOV_ID_A
-      value: "SRIOV_VF_0"
-    - name: SRIOV_ID_B
-      value: "SRIOV_VF_1"
-    - name: PCIDEVICE_OPENSHIFT_IO_SRIOV_VF_0
-      value: "0000:86:0a.0"
-    - name: PCIDEVICE_OPENSHIFT_IO_SRIOV_VF_1
-      value: "0000:86:0a.1"
-    - name: MTU
-      value: "1500"
     securityContext:
       capabilities:
         add: ["IPC_LOCK","SYS_ADMIN"]
