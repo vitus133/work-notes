@@ -1,0 +1,3 @@
+[submodule "dpdk-test/testpmd-container-app"]
+	path = dpdk-test/testpmd-container-app
+	url = git@github.com:vitus133/testpmd-container-app.git
