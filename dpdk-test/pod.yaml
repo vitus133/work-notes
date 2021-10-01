@@ -23,10 +23,16 @@ spec:
         cpu: 4
         memory: "1000Mi"
         hugepages-1Gi: "8Gi"
+        # Two following lines are needed if disabling injector
+        openshift.io/intel_dpdk_2f1:  "1"
+        openshift.io/intel_dpdk_7f1:  "1"
       requests:
         cpu: 4
         memory: "1000Mi"
         hugepages-1Gi: "8Gi"
+        # Two following lines are needed if disabling injector
+        openshift.io/intel_dpdk_2f1:  "1"
+        openshift.io/intel_dpdk_7f1:  "1"
     volumeMounts:
     - mountPath: /dev/hugepages
       name: hugepage

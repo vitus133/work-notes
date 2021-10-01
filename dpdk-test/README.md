@@ -9,6 +9,8 @@ This repository provides a set of manifests for verifying a basic dpdk functiona
 
 Test like this was needed to verify that SR-IOV network operator can be configured to work without `Injector` and `OperatorWebhook` pods. The purpose of shutting down these two pods is just to reduce the number of running pods on Single Node Openshift clusters for far edge Telecom deployments.
 
+__For the results, jump to [results](#experiment-results)__
+
 ## How do I get set up? ##
 ### Prerequisites ###
 1. You need an Openshift cluster running on a bare metal host with SR-IOV capable NICs.
@@ -176,3 +178,30 @@ Test like this was needed to verify that SR-IOV network operator can be configur
         ```
     
 It can be seen that each port sends and receives data to / from another port
+
+
+## Experiment results
+Yes, both `Injector` and `OperatorWebhook` can be disabled!
+I have not observed any side effects of disabling the operator webhook pod. The webhook is only validating the configuration a user tries to apply is correct.
+Disabling the Injector, however, requires users to add additional resource requirements to the pod manifest. 
+The network resource allocation must be explicitly set under container `resources` and `limits`:
+```diff
+@@ -23,10 +23,16 @@ spec:
+         cpu: 4
+         memory: "1000Mi"
+         hugepages-1Gi: "8Gi"
++        # Two following lines are needed if disabling injector
++        openshift.io/intel_dpdk_2f1:  "1"
++        openshift.io/intel_dpdk_7f1:  "1"
+       requests:
+         cpu: 4
+         memory: "1000Mi"
+         hugepages-1Gi: "8Gi"
++        # Two following lines are needed if disabling injector
++        openshift.io/intel_dpdk_2f1:  "1"
++        openshift.io/intel_dpdk_7f1:  "1"
+     volumeMounts:
+     - mountPath: /dev/hugepages
+       name: hugepage
+
+```
