@@ -7,7 +7,7 @@ This repository provides a set of manifests for verifying a basic dpdk functiona
 
 ## What is this repository for? ##
 
-The test like this was needed to verify that SR-IOV network operator can be configured to work without `Injector` and `OperatorWebhook` pods. The purpose of shutting down these two pods is just to reduce the number of running pods on Single Node Openshift clusters for far edge Telecom deployments.
+Test like this was needed to verify that SR-IOV network operator can be configured to work without `Injector` and `OperatorWebhook` pods. The purpose of shutting down these two pods is just to reduce the number of running pods on Single Node Openshift clusters for far edge Telecom deployments.
 
 ## How do I get set up? ##
 ### Prerequisites ###
