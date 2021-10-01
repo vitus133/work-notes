@@ -13,7 +13,7 @@ spec:
     {
     }
   networkNamespace: dpdk-net-ns
-  resourceName: intel_dpdk
+  resourceName: intel_dpdk_7f1
 ---  
 apiVersion: sriovnetwork.openshift.io/v1
 kind: SriovNetwork
@@ -25,4 +25,4 @@ spec:
     {
     }
   networkNamespace: dpdk-net-ns
-  resourceName: intel_dpdk
+  resourceName: intel_dpdk_2f1

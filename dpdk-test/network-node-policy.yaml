@@ -11,6 +11,23 @@ spec:
       - ens7f1
   nodeSelector:
     node-role.kubernetes.io/master: ""
-  numVfs: 5
+  numVfs: 1
   priority: 10
-  resourceName: intel_dpdk
+  resourceName: intel_dpdk_7f1
+---
+apiVersion: sriovnetwork.openshift.io/v1
+kind: SriovNetworkNodePolicy
+metadata:
+  name: sriov-nnp-dpdk-2f1
+  namespace: openshift-sriov-network-operator
+spec:
+  deviceType: vfio-pci
+  isRdma: false
+  nicSelector:
+    pfNames:
+      - ens2f1
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  numVfs: 1
+  priority: 10
+  resourceName: intel_dpdk_2f1
