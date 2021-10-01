@@ -1,0 +1,17 @@
+apiVersion: performance.openshift.io/v2
+kind: PerformanceProfile
+metadata:
+  name: perf
+spec:
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  realTimeKernel:
+    enabled: false
+  cpu:
+    isolated: "2-19,22-39"
+    reserved: "0-1,20-21"
+  hugepages:
+    defaultHugepagesSize: 1G
+    pages:
+      - size: 1G
+        count: 32

@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dpdk-base
+  annotations:
+    k8s.v1.cni.cncf.io/networks: dpdk-net-1, dpdk-net-2
+  namespace: dpdk-net-ns
+spec:
+  restartPolicy: Never
+  containers:
+  - name: dpdk-testpmd
+    image: quay.io/vgrinber/testpmd-container-app-testpmd:v0.2.2
+    command:
+      - /bin/bash
+      - -c
+      - "sleep inf"
+    imagePullPolicy: Always
+    securityContext:
+      capabilities:
+        add: ["IPC_LOCK","SYS_ADMIN"]
+    resources:
+      limits:
+        cpu: 4
+        memory: "1000Mi"
+        hugepages-1Gi: "8Gi"
+        # Two following lines are needed if disabling injector
+        openshift.io/intel_dpdk_2f1:  "1"
+        openshift.io/intel_dpdk_7f1:  "1"
+      requests:
+        cpu: 4
+        memory: "1000Mi"
+        hugepages-1Gi: "8Gi"
+        # Two following lines are needed if disabling injector
+        openshift.io/intel_dpdk_2f1:  "1"
+        openshift.io/intel_dpdk_7f1:  "1"
+    volumeMounts:
+    - mountPath: /dev/hugepages
+      name: hugepage
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  volumes:
+  - name: hugepage
+    emptyDir:
+      medium: HugePages
