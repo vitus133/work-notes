@@ -184,7 +184,7 @@ It can be seen that each port sends and receives data to / from another port
 Yes, both `Injector` and `OperatorWebhook` can be disabled!
 I have not observed any side effects of disabling the operator webhook pod. The webhook is only validating the configuration a user tries to apply is correct.
 Disabling the Injector, however, requires users to add additional resource requirements to the pod manifest. 
-The network resource allocation must be explicitly set under container `resources` and `limits`:
+The network resource allocation must be explicitly set under container `requests` and `limits`:
 ```diff
 @@ -23,10 +23,16 @@ spec:
          cpu: 4
