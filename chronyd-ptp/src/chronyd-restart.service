@@ -1,0 +1,6 @@
+[Unit]
+Description=Restart chronyd
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/restart-chronyd

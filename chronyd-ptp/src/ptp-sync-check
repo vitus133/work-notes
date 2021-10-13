@@ -1,0 +1,104 @@
+#!/bin/bash
+# Evaluate PTP synchronization state and create or delete 
+# the chronyd.service condition file accordingly
+
+MAX_OFFSET=$(( 100000 ))                  # 100 microseconds in nanoseconds
+OFFSET_THRESHOLD=$(( 20000 ))             # 20 microseconds in nanoseconds
+SYNC_AGE=600                              # 10 minutes in seconds
+SYNC_MARKER_PATH="/var/run/ptp/insync"    # File chronyd service start will condition on
+LOGGER_TAG="ptp-chronyd"
+
+function log_debug(){
+  echo "$1"
+  logger -t $LOGGER_TAG -p "syslog.debug" "$1"
+}
+
+# Remove the sync marker file and exit the program 
+function not_synced() {
+  log_debug "Removing sync marker"
+  rm $SYNC_MARKER_PATH &> /dev/nul
+  exit 0
+}
+
+# Check variable is defined
+function check_defined() {
+  VAR="$1"
+  if [ ${#VAR} -eq 0 ]; then 
+    log_debug "Undefined variable ${@: -1} at line $(caller)"    
+    not_synced
+  fi
+}
+
+# Compare floating point numbers
+function greater() {
+   awk -v n1="$1" -v n2="$2" 'BEGIN {printf (n1>n2?"true":"false")"\n", n1, n2}'
+}
+
+# Return absolute (for master offset)
+function abs() { 
+    [[ $[ $@ ] -lt 0 ]] && echo "$[ ($@) * -1 ]" || echo "$[ $@ ]"
+}
+
+# Log scraping body
+LOG_SUBDIR=$(ls /var/log/pods/ |grep openshift-ptp_linuxptp-daemon)
+check_defined $LOG_SUBDIR "LOG_SUBDIR"
+LOG_DIR="/var/log/pods/$LOG_SUBDIR/linuxptp-daemon-container"
+check_defined $LOG_DIR "LOG_DIR"
+LAST_LOG_STR=$(ls -ltr $LOG_DIR/ |tail -1)
+check_defined ${LAST_LOG_STR} "LAST_LOG_STR"
+LAST_LOG_ARRAY=($LAST_LOG_STR)
+LOG_NAME=${LAST_LOG_ARRAY[-1]}
+check_defined $LOG_NAME "LOG_NAME"
+LAST_STATUS=$(tail -2000 $LOG_DIR/$LOG_NAME |grep "] master offset" |tail -1)
+check_defined "${LAST_STATUS}" "LAST_STATUS"
+STRING_ARRAY=($LAST_STATUS)
+OFFSET_DATE=${STRING_ARRAY[0]}
+check_defined $OFFSET_DATE "OFFSET_DATE"
+declare -i OFFSET_VALUE
+OFFSET_VALUE=${STRING_ARRAY[7]}
+check_defined $OFFSET_VALUE "OFFSET_VALUE"
+log_debug "PTP offset: $OFFSET_VALUE"
+
+# Check how fresh is the offset measurement to protect
+# from looking at the old log that has not been cleaned from the system
+CURRENT_TIME="$(date +%s.%N)" # current date in nanoseconds
+OFFSET_TIMESTAMP="$(date +%s.%N -d "$OFFSET_DATE")" # measurement date in ns
+TIME_DIFF=$(awk '{print $1-$2}' <<<"${CURRENT_TIME} ${OFFSET_TIMESTAMP}")
+if $(greater $TIME_DIFF $SYNC_AGE); then
+  SYNC_FRESHNESS="stale"
+else
+  SYNC_FRESHNESS="fresh"
+fi
+
+log_debug "PTP information from $LOG_DIR/$LOG_NAME is $SYNC_FRESHNESS"
+
+# Check the clock offset relatively to the MAX_OFFSET 
+# taking the hysteresis threshold into account
+declare -i ABS_OFFSET_VALUE
+ABS_OFFSET_VALUE=$(abs $OFFSET_VALUE)
+if [[ -f "$SYNC_MARKER_PATH" ]]; then
+  log_debug "Last known ptp state - synchronized"
+  SYNC_STATE="Synchronized"
+  ((MAX_OFFSET=MAX_OFFSET+OFFSET_THRESHOLD))
+else
+  log_debug "Last known ptp - unsynchronized"
+  SYNC_STATE="Unsynchronized"
+  ((MAX_OFFSET=MAX_OFFSET-OFFSET_THRESHOLD))
+fi
+if [ $ABS_OFFSET_VALUE -gt $MAX_OFFSET ]; then
+  CLOCK_STATE="bad"
+else
+  CLOCK_STATE="good"
+fi
+
+# Take decisions based on the clock state and sync freshness
+if [[ "$CLOCK_STATE" = "good" ]] && [[ "$SYNC_FRESHNESS" = "fresh" ]]; then
+  log_debug "ensure $SYNC_MARKER_PATH exists"
+  touch $SYNC_MARKER_PATH
+fi
+
+if [[ "$CLOCK_STATE" = "bad" ]] || [[ "$SYNC_FRESHNESS" = "stale" ]]; then
+  log_debug "ensure $SYNC_MARKER_PATH does not exist"
+  not_synced
+fi
+

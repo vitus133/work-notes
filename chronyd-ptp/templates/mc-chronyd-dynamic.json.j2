@@ -1,0 +1,59 @@
+{
+  "apiVersion": "machineconfiguration.openshift.io/v1",
+  "kind": "MachineConfig",
+  "metadata": {
+    "name": "chronyd-dynamic",
+    "labels": {
+      "machineconfiguration.openshift.io/role": "master"
+    }
+  },
+  "spec": {
+    "config": {
+      "ignition": {
+        "version": "3.2.0"
+      },
+      "storage": {
+        "files": [
+          {
+            "path": "/usr/local/bin/ptp-sync-check",
+            "filesystem": "root",
+            "mode": 493,
+            "contents": {
+              "source": "data:text/plain;charset=utf8;base64,{{ ptp_sync_check }}"
+            }
+          },
+          {
+            "path": "/usr/local/bin/restart-chronyd",
+            "filesystem": "root",
+            "mode": 493,
+            "contents": {
+              "source": "data:text/plain;charset=utf8;base64,{{ restart_chronyd }}"
+            }
+          }
+        ]
+      },
+      "systemd": {
+        "units": [
+          {
+            "name": "chronyd.service",
+            "dropins": [
+              {
+                "name": "20-conditional-start.conf",
+                "contents": "{{ conditional_start }}"
+              }
+            ]
+          },
+          {
+            "name": "chronyd-restart.service",
+            "contents": "{{ restart_service }}"
+          },
+          {
+            "name": "chronyd-restart.timer",
+            "enabled": true,
+            "contents": "{{ restart_timer }}"
+          }
+        ]
+      }
+    }
+  }
+}
