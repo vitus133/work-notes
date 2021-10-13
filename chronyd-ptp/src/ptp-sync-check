@@ -81,7 +81,7 @@ if [[ -f "$SYNC_MARKER_PATH" ]]; then
   SYNC_STATE="Synchronized"
   ((MAX_OFFSET=MAX_OFFSET+OFFSET_THRESHOLD))
 else
-  log_debug "Last known ptp - unsynchronized"
+  log_debug "Last known ptp state - unsynchronized"
   SYNC_STATE="Unsynchronized"
   ((MAX_OFFSET=MAX_OFFSET-OFFSET_THRESHOLD))
 fi
