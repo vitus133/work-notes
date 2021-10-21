@@ -1,0 +1,136 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  # name must match the spec fields below, and be in the form: <plural>.<group>
+  name: sites.ran.openshift.com
+spec:
+  # group name to use for REST API: /apis/<group>/<version>
+  group: ran.openshift.com
+  # list of versions supported by this CustomResourceDefinition
+  versions:
+    - name: v1
+      # Each version can be enabled/disabled by Served flag.
+      served: true
+      # One and only one version must be marked as the storage version.
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required:
+              - bareMetalHost
+              - infraEnv
+              properties:
+                bareMetalHost:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                    password:
+                      type: string
+                    address:
+                      description: Address holds the URL for accessing the controller on the network.
+                      type: string
+                    credentialsName:
+                      description: The name of the secret containing the BMC credentials (requires keys "username" and "password").
+                      type: string
+                    disableCertificateVerification:
+                      description: DisableCertificateVerification disables verification of server certificates when using HTTPS to connect to the BMC. This is required when the server certificate is self-signed, but is insecure because it allows a man-in-the-middle to intercept the connection.
+                      type: boolean
+                      default: false                      
+                  # Here we have an option to either specify username and password in plaintext
+                  # or reference credentials object by name
+                  anyOf:
+                    - required:
+                      - username
+                      - password
+                      - address
+                    - required:
+                      - address
+                      - credentialsName
+                infraEnv:
+                  type: object
+                  anyOf:
+                  - required:
+                    - pullSecretRef
+                    - nmStateConfigLabelSelector
+                  - required:
+                    - pullSecret
+                    - nmStateConfigLabelSelector
+                  - required:
+                    - pullSecretRef
+                    - nmStateConfigs
+                  - required:
+                    - pullSecret
+                    - nmStateConfigs
+                  properties:
+                    sshAuthorizedKey:
+                      type: string
+                      description: SSHAuthorizedKey is a SSH public keys that will be added to all agents for use in debugging.
+                    pullSecret:
+                      type: string
+                      description: JSON encoded string containing the image registr(y/ies) pull secret
+                    pullSecretRef:
+                      type: object
+                      description: PullSecretRef is the reference to the secret to use when
+                        pulling images.
+                      properties:
+                        name:
+                          description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            To create pull secret from file use command:
+                            kubectl create secret -n <namespace> generic <name> --from-file=.dockerconfigjson=pull_secret.json'
+                          type: string
+                    ignitionConfigOverride:
+                      description: Json formatted string containing the user overrides for the initial ignition config
+                      type: string
+                    
+                    nmStateConfigLabelSelector:
+                      type: object
+                      description: NmstateConfigLabelSelector associates NMStateConfigs for hosts that are considered part of this installation environment.
+                      properties:
+                        matchLabels:
+                          additionalProperties:
+                            type: string
+                          description: matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels map is equivalent to an element of matchExpressions, whose key field is "key", the operator is "In", and the values array contains only "value". The requirements are ANDed.
+                          type: object
+                    nmStateConfigs:
+                      type: array
+                      description: NMStateConfigs for hosts that are considered part of this installation environment
+                      items:
+                        type: object
+                        properties:
+                          dummy:
+                            type: string
+
+                    ## TODO: Why do we need this?
+                    # agentLabelSelector:
+                    #   type: object
+                    #   description: AgentLabelSelector specifies a label that should be applied
+                    #     to Agents that boot from the installation media of this InfraEnv.
+                    #     This is how a user would identify which agents are associated with
+                    #     a particular InfraEnv.
+                    #   properties:
+                    #     matchLabels:
+                    #       type: object
+                    #       additionalProperties:
+                    #         type: string
+                    #       description: matchLabels is a map of {key,value} pairs. A single
+                    #         {key,value} in the matchLabels map is equivalent to an element
+                    #         of matchExpressions, whose key field is "key", the operator
+                    #         is "In", and the values array contains only "value". The requirements
+                    #         are ANDed.
+
+  # either Namespaced or Cluster
+  scope: Namespaced
+  names:
+    # plural name to be used in the URL: /apis/<group>/<version>/<plural>
+    plural: sites
+    # singular name to be used as an alias on the CLI and for display
+    singular: site
+    # kind is normally the CamelCased singular type. Your resource manifests use this.
+    kind: RanSite
+    # shortNames allow shorter string to match your resource on the CLI
+    shortNames:
+    - sit
