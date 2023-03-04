@@ -32,6 +32,13 @@ systemd:
           contents: |
             [Unit]
             After=sync-time.target
+    - name: crio.service
+      dropins:
+        - name: 99-time-sync.conf
+          contents: |
+            [Unit]
+            After=sync-time.target
+
 storage:
   files:
     - path: /usr/local/bin/sync-time-once.sh
