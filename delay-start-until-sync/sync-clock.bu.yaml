@@ -1,0 +1,52 @@
+variant: openshift
+version: 4.12.0
+metadata:
+  name: hold-ocp-until-time-sync
+  labels:
+    machineconfiguration.openshift.io/role: master
+systemd:
+  units:
+    - name: sync-time.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Sync time once
+        [Service]
+        Type=oneshot
+        TimeoutStartSec=infinity
+        ExecStart=/usr/local/bin/sync-time-once.sh
+        RemainAfterExit=yes
+        [Install]
+        WantedBy=multi-user.target
+        
+    - name: sync-time.target
+      enabled: true
+      contents: |
+        [Unit]
+        After=sync-time.service
+        [Install]
+        WantedBy=multi-user.target
+    - name: kubelet.service
+      dropins:
+        - name: 99-time-sync.conf
+          contents: |
+            [Unit]
+            After=sync-time.target
+storage:
+  files:
+    - path: /usr/local/bin/sync-time-once.sh
+      mode: 0755
+      overwrite: true
+      contents:
+        inline: |
+          #!/bin/sh
+          set -euo pipefail
+          SYNC_CHECK_INTERVAL=10
+          systemctl start chronyd
+
+          while [ $(timedatectl |grep "System clock synchronized:" |cut -d " " -f 4) == "no" ]
+          do
+            echo "System clock is not synchronized. Wait $SYNC_CHECK_INTERVAL seconds"
+            sleep $SYNC_CHECK_INTERVAL
+          done
+          systemctl stop chronyd
