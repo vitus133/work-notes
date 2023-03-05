@@ -14,5 +14,5 @@ curl https://mirror.openshift.com/pub/openshift-v4/clients/butane/latest/butane 
 
 ### Usage ###
 ```bash
-butane sync-clock.bu.yaml 
+butane sync-clock.bu.yaml | oc -f -
 ```
